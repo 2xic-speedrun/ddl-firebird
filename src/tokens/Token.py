@@ -21,7 +21,7 @@ class Token:
         is_quote_end = char in self.quote or self.text in self.quote
 
         """
-            This looks complicated.
+            TODO: Redo, this looks complicated.
         """
         if is_current_char_a_stop_char_or_space:
             return True

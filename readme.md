@@ -1,6 +1,6 @@
 # DDL for Firebird
 
-Simple parser to parse DDL format from DBeaver.
+Simple parser to parse Firebird DDL format from DBeaver.
 
 Will be used to benchmark aspects of Firebird DB by importing only tables dependent on each other.
 
