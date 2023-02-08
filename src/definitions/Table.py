@@ -33,6 +33,6 @@ class Table:
                     if token_stream.peek() == ",":
                         token_stream.increment(1)
                 token_stream.increment(1)
-                assert token_stream.read() == ";"
-                
-        return (self, token_stream)
+                assert token_stream.read() == ";"            
+            return (self, token_stream)
+        return (None, token_stream)
