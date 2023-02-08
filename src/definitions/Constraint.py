@@ -4,13 +4,13 @@ class Constraint:
     def __init__(self) -> None:
         self.name = None
 
-    def parse_keyword(self, token_stream: TokenStreamer):
+    def parse(self, token_stream: TokenStreamer):
         if token_stream.peek() == "CONSTRAINT":
-            token_stream = token_stream.increment(1)
+            token_stream.increment(1)
             self.name = token_stream.read()
+
             if token_stream.is_sequence(["PRIMARY", "KEY"]):
                 token_stream.increment(2)
-                ids = ""
                 assert token_stream.peek() == "("
                 while token_stream.read() != ")":
                     pass

@@ -8,11 +8,11 @@ class FirebirdParser:
         self.streamer = TokenStreamer(self.tokens)
 
     def parse(self):
-        prev_index = self.streamer.index
-        (table, streamer) = Table().parse(self.streamer)
-                
-        #if streamer.index != prev_index:
-        #    raise Exception("Streamer did not move")
+        tables = []
+        streamer = self.streamer
+        while not streamer.is_done:
+            (table, streamer) = Table().parse(self.streamer)
+            tables.append(table)      
 
-        return table
+        return tables
 

@@ -31,7 +31,6 @@ class Column:
         if token_stream.is_sequence(["NOT", "NULL"]):
             token_stream = token_stream.increment(2)
         #    raise Exception("??")
-        #print(["mext", type, token_stream.peek(), token_stream.peek(1)])
         return (type, token_stream)
 
     def __str__(self):
