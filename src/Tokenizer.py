@@ -1,25 +1,15 @@
 from .tokens.Token import Token
+from .tokens.Scanner import Scanner
+from .helper.Timer import timer
 
 class Tokenizer:
-    def __init__(self) -> None:
-        pass
-
     def parse(self, text):
-        index = 0
-        tokens = []
-        is_within_quote = False
-        token = Token(is_within_quote)
-        while index < len(text):
-            char = text[index]
-            complete = token.add_char(char)
-            if complete:
-                tokens.append(token)
-                # TODO: Do this in a cleaner way
-                if token.is_quote:
-                    is_within_quote = not is_within_quote
-                token = Token(is_within_quote)
-            else:
-                index += 1
-        if token.text:
-            tokens.append(token)
-        return tokens
+        return self.find_token(text)
+
+    @timer
+    def find_token(self, text):
+        output = []
+        for i in Scanner().find_tokens(text):
+            token = Token(i)
+            output.append(token)
+        return output

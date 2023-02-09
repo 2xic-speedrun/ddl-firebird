@@ -1,1 +1,4 @@
 *.pyc
+example.ddl
+output.sql
+debug.py

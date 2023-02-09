@@ -25,3 +25,8 @@ class TokenStreamer:
     def increment(self, step):
         self.index += step
         return self
+
+    @property
+    def context(self):
+        tokens = self.tokens[max(self.index-5, 0):self.index + 5]
+        return " ".join(list(map(str, tokens)))

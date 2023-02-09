@@ -1,4 +1,5 @@
-from .TokenStreamer import TokenStreamer
+from ..TokenStreamer import TokenStreamer
+from .ForeignKey import ForeignKey
 
 class Constraint:
     def __init__(self) -> None:
@@ -6,6 +7,7 @@ class Constraint:
 
     def parse(self, token_stream: TokenStreamer):
         if token_stream.peek() == "CONSTRAINT":
+            constraint = self
             token_stream.increment(1)
             self.name = token_stream.read()
 
@@ -16,19 +18,34 @@ class Constraint:
                 token_stream.increment(2)
                 token_stream = self._read_scope(token_stream)
                 assert token_stream.read() == "REFERENCES"
-                _name = token_stream.read()
+                target_table = token_stream.read()
                 token_stream = self._read_scope(token_stream)
                 token_stream = self._on_actions(token_stream)
+
+                constraint = ForeignKey(
+                    target_table=target_table
+                )
+
+            elif token_stream.is_sequence(["UNIQUE"]):
+                token_stream.increment(1)
+                token_stream = self._read_scope(token_stream)
             else:
-                raise Exception("Unknown")
-            return (self, token_stream)
+                raise Exception("Unknown constraint " + token_stream.context)
+            return (constraint, token_stream)
         return (None, token_stream)
 
-    def _on_actions(self, token_stream):
+    def _on_actions(self, token_stream: TokenStreamer):
         while token_stream.peek() == "ON":
-            token_stream.read()
-            action = token_stream.read()
-            results = token_stream.read()
+            assert token_stream.read() == "ON"
+            assert token_stream.read() in ["UPDATE", "DELETE"]
+            if token_stream.is_sequence(["NO", "ACTION"]):
+                token_stream.increment(2)
+            elif token_stream.is_sequence(["CASCADE"]):
+                token_stream.increment(1)
+            elif token_stream.is_sequence(["SET", "DEFAULT"]):
+                token_stream.increment(2)
+            elif token_stream.is_sequence(["SET", "NULL"]):
+                token_stream.increment(2)
         return token_stream
 
     def _read_scope(self, token_stream):

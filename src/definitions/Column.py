@@ -1,5 +1,5 @@
 from .TokenStreamer import TokenStreamer
-from .Types import Types
+from .types.Types import Types
 
 class Column:
     def __init__(self) -> None:
@@ -26,6 +26,9 @@ class Column:
             return (name, token_streamer)
         else:
             return (token_streamer.read(), token_streamer)
+
+    def sql(self):
+        return f"{self.name} {self.type.sql()}"
 
     def __str__(self):
         return self.name
