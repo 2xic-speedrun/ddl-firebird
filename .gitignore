@@ -2,3 +2,4 @@
 example.ddl
 output.sql
 debug.py
+output*.sql

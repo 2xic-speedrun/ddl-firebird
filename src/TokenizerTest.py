@@ -26,5 +26,19 @@ class TestTokenizer(unittest.TestCase):
         """)
         assert list(map(str, tokens)) == ['"', 'quote', '"']
 
+    def test_long_comment_and_text(self):
+        tokens = Tokenizer().parse("""
+            /* This is a comment */
+            "quote"
+        """)
+        assert list(map(str, tokens)) == ['"', 'quote', '"']
+
+    def test_single_quote(self):
+        tokens = Tokenizer().parse("""
+            /* This is a comment */
+            'quote'
+        """)
+        assert list(map(str, tokens)) == ["'", 'quote', "'"]
+
 if __name__ == '__main__':
     unittest.main()

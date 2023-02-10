@@ -15,5 +15,6 @@ begin
     ratio = a / b;                      -- integer division!
     remainder = a - b*ratio;
     if (remainder = 0) then res = 1; else res = 0;
+    execute procedure LOG(10);
   end
 end

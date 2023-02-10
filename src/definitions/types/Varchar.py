@@ -1,5 +1,4 @@
 
-
 class Varchar:
     def __init__(self) -> None:
         self.name = None
@@ -8,4 +7,7 @@ class Varchar:
         self.is_nullable = True
 
     def sql(self):
-        return f"{self.name} ({self.length})"
+        if self.default:
+            return f"{self.name} ({self.length}) DEFAULT '{self.default}'"
+        else:
+            return f"{self.name} ({self.length})"

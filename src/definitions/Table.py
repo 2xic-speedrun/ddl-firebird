@@ -5,6 +5,7 @@ from .constraints.Constraint import Constraint
 from .constraints.ForeignKey import ForeignKey
 from typing import List, Union
 from ..helper.Timer import timer
+from .Trigger import Trigger
 
 class Table:
     def __init__(self) -> None:
@@ -12,6 +13,7 @@ class Table:
         self.columns: List[Column] = []
         self.constraints: List[Constraint] = []
         self.indexes: List[Index] = []
+        self.triggers: List[Trigger] = []
 
     @timer
     def parse(self, token_stream: TokenStreamer):

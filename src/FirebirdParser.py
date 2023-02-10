@@ -6,6 +6,8 @@ import sys
 import time
 from .helper.Timer import Timer, timer
 from typing import List, Dict
+from .definitions.Procedure import Procedure
+from .definitions.Trigger import Trigger
 
 class FirebirdParser:
     def __init__(self, text) -> None:
@@ -14,35 +16,50 @@ class FirebirdParser:
 
         self.tables: List[Table] = []
         self.indexes: List[Index] = []
-        self.graph: Dict[str, Table] = {
+        self.procedures: List[Procedure] = []
+        self.triggers: List[Trigger] = []
 
-        }
+        self.table_graph: Dict[str, Table] = {}
+        self.procedure_graph: Dict[str, Procedure] = {}
 
     @timer
     def parse(self):
         streamer = self.streamer
         while not streamer.is_done:
+            if streamer.peek() == ";":
+                streamer.increment(1)
+                continue
             types = [
                 Table(),
-                Index()
+                Index(),
+                Procedure(),
+                Trigger()
             ]
             for i in types:
                 (results, streamer) = i.parse(self.streamer)
                 if results is not None:
                     if isinstance(results, Table):
                         self.tables.append(results)
-                        self.graph[results.name] = results
+                        self.table_graph[results.name] = results
                     elif isinstance(results, Index):
                         self.indexes.append(results)
+                    elif isinstance(results, Procedure):
+                        self.procedures.append(results)
+                        self.procedure_graph[results.name] = results
+                    elif isinstance(results, Trigger):
+                        self.triggers.append(results)
                     break
             else:
                 raise SyntaxError("Close to " + streamer.context)
-        for i in self.indexes:
-            self.graph[results.target_table].indexes.append(i)
+        for i in self.triggers:
+            if i.target_table in self.table_graph:
+                self.table_graph[i.target_table].triggers.append(i)
+    #    for i in self.indexes:
+    #        self.table_graph[results.target_table].indexes.append(i)
         return self
 
 def get_table_info(results: FirebirdParser, table: str):
-    reference = results.graph[table]
+    reference = results.table_graph[table]
     print(reference.sql())
     for i in reference.references_():
         get_table_info(results, i)

@@ -6,6 +6,7 @@ class Types:
         self.name = None
         self.is_nullable = True
         self.default = None
+        self.parameters = None
 
     def parse(self, token_stream: TokenStreamer):
         type = self
@@ -23,11 +24,14 @@ class Types:
                     type.length = values[0]
             elif self.name == "NUMERIC":
                 (token_stream, values) = self._read_loop(token_stream)
+                self.parameters = f"({' '.join(values)})"
             elif self.name == "BLOB":
-                token_stream.increment(1)
+                self.parameters = ""
+                self.parameters += token_stream.read()
+                self.parameters += " "
                 if token_stream.peek() == "-":
-                    token_stream.increment(1)
-                token_stream.increment(1)
+                    self.parameters += token_stream.read()
+                self.parameters += token_stream.read()
                 assert token_stream.peek() in [",", ")"], token_stream.peek()
 
         if token_stream.is_sequence(["DEFAULT"]):
@@ -48,6 +52,12 @@ class Types:
             token_stream.increment(1)
 
             return (token_stream, value)
+        elif token_stream.peek().isnumeric():
+            value = token_stream.read()
+            if token_stream.peek() == ".":
+                value += token_stream.read()
+                value += token_stream.read()
+            return (token_stream, value)
         else:
             return (token_stream, token_stream.read())
 
@@ -62,7 +72,14 @@ class Types:
         return (token_stream, values)
 
     def sql(self):
-        return f"{self.name}"
+        results = f"{self.name}"
+        if self.parameters is not None:
+            results = f"{self.name} {self.parameters}"
+
+        if self.default is not None:
+            results = f"{results} DEFAULT {self.default}"
+
+        return results
 
     def __str__(self):
         return self.name

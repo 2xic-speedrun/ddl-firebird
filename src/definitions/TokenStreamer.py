@@ -10,7 +10,9 @@ class TokenStreamer:
         return self.index == len(self.tokens)
 
     def peek(self, step=0):
-        return str(self.tokens[self.index + step])
+        if self.index + step < len(self.tokens):
+            return str(self.tokens[self.index + step])
+        return None
 
     def read(self):
         results = self.peek()
@@ -18,7 +20,10 @@ class TokenStreamer:
         return results
 
     def is_sequence(self, tokens):
-        if list(map(str, self.tokens[self.index:self.index+len(tokens)])) == tokens:
+        str_tokens = list(map(str, self.tokens[self.index:self.index+len(tokens)]))
+        str_tokens = list(map(lambda x: x.lower(), str_tokens))
+        tokens = list(map(lambda x: x.lower(), tokens))
+        if str_tokens == tokens:
             return True
         return False
 

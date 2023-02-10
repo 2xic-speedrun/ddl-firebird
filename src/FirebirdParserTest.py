@@ -62,7 +62,7 @@ class TestFirebirdParser(unittest.TestCase):
         tables = results.tables
         assert len(tables) == 1
         table = tables[0]
-        assert len(table.columns) == 10
+        assert len(table.columns) == 11
         assert table.columns[0].name == "ID"
         assert table.columns[0].type.name == "BIGINT"
         assert table.columns[0].type.is_nullable == False
@@ -105,6 +105,11 @@ class TestFirebirdParser(unittest.TestCase):
         assert table.columns[9].type.default == None
         assert table.columns[9].type.is_nullable == True
 
+        assert table.columns[10].name == "SATS"
+        assert table.columns[10].type.name == "DOUBLE PRECISION"
+        assert table.columns[10].type.default == '24.00'
+        assert table.columns[10].type.is_nullable == True
+
         assert len(tables[0].constraints) == 1
 
     def test_table_and_index(self):
@@ -134,6 +139,18 @@ class TestFirebirdParser(unittest.TestCase):
 
         results = FirebirdParser(content).parse()
         assert len(results.tables) == 1
+
+    def test_procedures(self):
+        content = None
+        with open(get_full_path("examples/Procedure.sql"), "r") as file:
+            content = file.read()
+
+        results = FirebirdParser(content).parse()
+        assert len(results.procedures) == 1
+        assert results.procedures[0].name == "ISMULTIPLE"
+        results.procedures[0].references_procedures = list(results.procedures[0].references_procedures)
+        assert len(results.procedures[0].references_procedures) == 1
+        assert results.procedures[0].references_procedures[0] == "LOG"
 
 if __name__ == '__main__':
     unittest.main()
