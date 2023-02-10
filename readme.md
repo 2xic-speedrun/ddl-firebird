@@ -1,11 +1,18 @@
-# DDL for Firebird
+# DDL dependency graph solver for Firebird
 
-Simple parser to parse (parts of the) Firebird DDL format from DBeaver.
+Simple parser to parse (parts of the) Firebird DDL format from DBeaver to solve order of the dependency.
 
-Will be used to benchmark aspects of Firebird DB by importing only tables dependent on each other.
+Context: When exporting from DBeaver it does not follow an order to allow me to import to another database. This code is just a simple parser to resolve that dependency order.
+
+Example graph from `./src/examples/DependencyGraph.sql`
+
+![dependency](./dependency.png)
 
 ## TODO (??)
-- [ ] Complete the necessary parts of the parser
-  - [ ] Will use reference counting for procedures
-- [ ] Make the parser output the full objects (i.e that they can be used to reconstruct the tables)
-- [ ] Put the tables in a graph, and make it possible to get the DDL for connected nodes.
+- [X] Complete the necessary parts of the parser
+  - [X] Will use reference counting for procedures
+        - This is not a true parser, it's just to handle the order.
+- [X] Put the tables in a graph, and make it possible to get the DDL for connected nodes.
+- [ ] Output the code in correct order based on the graph
+- ̃~~Make the parser output the full objects (i.e that they can be used to reconstruct the tables)~~
+  - Dropped, don't need the full object for my use case.
