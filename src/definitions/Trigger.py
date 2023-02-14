@@ -1,5 +1,7 @@
 from .TokenStreamer import TokenStreamer
 from ..tokens.StringToken import StringToken
+from .Scope import Scope
+from .helpers.StringReader import StringReader
 
 class Trigger:
     def __init__(self) -> None:
@@ -7,13 +9,16 @@ class Trigger:
         self.references_tables = set([])
         self.references_procedures = set([])
         self.target_table = None
+        self.trigger_types = None
 
     def parse(self, token_stream: TokenStreamer):
         if token_stream.is_sequence(["CREATE", "TRIGGER"]):
             token_stream.increment(2)
-            (self.name, token_stream) = self._read_name(token_stream)
+            (self.name, token_stream) = StringReader().read_string(token_stream)
             assert token_stream.read() == "FOR"
-            (self.target_table, token_stream) = self._read_name(token_stream)
+            (self.target_table, token_stream) = StringReader().read_string(token_stream)
+
+            self.trigger_types = self.read_trigger_type(token_stream)
 
             reference_count = 1
             early_stopping = False
@@ -28,57 +33,19 @@ class Trigger:
 
         #    print(self.name, early_stopping, token_stream.tokens[token_stream.index:token_stream.index+3])
             if not early_stopping:
-                token_stream.increment(1)
-                while reference_count != 0:
-                    raw_token = token_stream.tokens[token_stream.index]
-                    token = str(raw_token).upper()
+                (token_stream, self.references_procedures, self.references_tables) = Scope().parse_scope(token_stream)
 
-                    if token_stream.is_sequence(["SUBSTRING", "("]):
-                        while token_stream.read() != ")":
-                            pass
-                        continue
-                    if token_stream.is_sequence(["EXECUTE", "PROCEDURE"]):
-                        self.references_procedures.add(
-                            token_stream.peek(2).upper()
-                        )
-                    elif token_stream.is_sequence(["EXECUTE", "PROCEDURE"]):
-                        self.references_procedures.add(
-                            token_stream.peek(2).upper()
-                        )
-                    elif token_stream.is_sequence(["INSERT", "INTO"]):
-                        self.references_tables.add(
-                            token_stream.peek(2)
-                        )
-                    elif token_stream.is_sequence(["UPDATE"]):
-                        self.references_tables.add(
-                            token_stream.peek(1)
-                        )
-                    elif token_stream.is_sequence(["FROM"]):
-                        if token_stream.peek().isalpha():
-                            if token_stream.peek(2) == "(":
-                                self.references_procedures.add(
-                                    token_stream.peek(1).upper()
-                                )
-                            else:
-                                self.references_tables.add(
-                                    token_stream.peek(1)
-                                )
-
-                    if not isinstance(raw_token, StringToken):
-                        if token == "BEGIN" or token == "CASE":
-                            reference_count += 1
-                        elif token == "END":
-                            reference_count -= 1
-                    token_stream.increment(1)
-
-            if token_stream.peek() == ";":
-                token_stream.increment(1)
             return (self, token_stream)
         return (None, token_stream)
 
-    def _read_name(self, token_stream: TokenStreamer):
-        name = token_stream.read()
-        if name == '"':
-            name = token_stream.read()
-            assert token_stream.read() == '"'
-        return (name, token_stream)
+    def read_trigger_type(self, token_stream):
+        assert token_stream.read() in ["BEFORE", "AFTER"]
+        actions = []
+        while True:
+            actions.append(token_stream.read())
+            if token_stream.peek() != "OR":
+                break
+            else:
+                token_stream.increment(1)
+        return actions
+

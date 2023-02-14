@@ -12,7 +12,7 @@ class Dependency:
         self.edges = {}
        # self.dot.graph_attr['layout'] = 'neato'
 
-    def plot(self, procedure: str=None, table=None, max_depth=float('inf')):
+    def plot(self, procedure: str=None, table=None, max_depth=float('inf'), prune=False):
         dependency = []
         visited = {}
         seed = None
@@ -23,22 +23,22 @@ class Dependency:
 
         if seed is None:
             raise Exception("Need to set table or procedure")
-        self._resolve_dependency(seed, dependency, visited, self.dot, max_depth=max_depth)
+        self._resolve_dependency(seed, dependency, visited, self.dot, max_depth=max_depth, prune=prune)
         self.dot.render('dependency')
 
         return dependency
 
-    def get_procedure_dependency(self, procedure: str):
+    def get_procedure_dependency(self, procedure: str, max_depth=float('inf'), prune=False):
         # 1. First we need to know all tables
         # 2. Then we need to know all procedures
         # 3. Then we need to know all triggers
         dependency = []
         visited = {}
         procedure = self.parsed.procedure_graph[procedure.upper()]
-        self._resolve_dependency(procedure, dependency, visited, max_depth=float('inf'))
+        self._resolve_dependency(procedure, dependency, visited, max_depth=max_depth, prune=prune)
         return dependency
 
-    def _resolve_dependency(self, item: Union[Trigger, Procedure, Table], dependency: List[str], visited, dot=None, max_depth=float('inf')):
+    def _resolve_dependency(self, item: Union[Trigger, Procedure, Table], dependency: List[str], visited, dot=None, max_depth=float('inf'), prune=False):
         if isinstance(item, Procedure):
             self._plot_dot(dot, lambda: dot.node(item.name, item.name, color="blue"))
         elif isinstance(item, Trigger):
@@ -50,23 +50,25 @@ class Dependency:
             # We hit the max depth
             return
 
-        if not isinstance(item, Table):
+        if isinstance(item, Trigger) or  isinstance(item, Procedure):
             revisit_tables = []
             for i in item.references_tables:
                 if i not in visited:
-                    self._plot_dot(dot, lambda: dot.edge(item.name.upper(), i.upper()))
+                    self._plot_dot(dot, lambda: dot.edge(item.name.upper(), i.reference.upper()))
                     visited[i] = True
                     revisit_tables.append(i)
                     try:
                         self._resolve_dependency(
-                            self.parsed.table_graph[i.upper()],
+                            self.parsed.table_graph[i.reference.upper()].get_state_type((i.type if prune else None)),
                             dependency,
                             visited,
                             dot,
                             max_depth=max_depth - 1,
+                            prune=prune,
                         )
                     except Exception as e:
                         print(e)
+
             for i in item.references_procedures:
                 if i not in visited:
                     self._plot_dot(dot, lambda: dot.edge(item.name.upper(), i.upper()))
@@ -78,11 +80,13 @@ class Dependency:
                             visited,
                             dot,
                             max_depth=max_depth - 1,
+                            prune=prune,
                         )
                     except Exception as e:
                         print(e)
         else:
             for i in item.triggers:
+                # it's a reference type
                 if i.name not in visited:
                     self._plot_dot(dot, lambda: dot.edge(item.name.upper(), i.name.upper()))
                     visited[i.name] = True
@@ -93,6 +97,7 @@ class Dependency:
                             visited,
                             dot,
                             max_depth=max_depth - 1,
+                            prune=prune,
                         )
                     except Exception as e:
                         print(e)

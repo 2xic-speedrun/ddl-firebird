@@ -1,6 +1,6 @@
 import unittest
-from .Tokenizer import Tokenizer
-from .FirebirdParserTest import get_full_path
+from ..Tokenizer import Tokenizer
+from .TestUtils import get_full_path
 
 class TestTokenizer(unittest.TestCase):
     def test_simple_table(self):

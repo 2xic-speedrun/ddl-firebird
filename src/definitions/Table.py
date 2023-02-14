@@ -6,6 +6,7 @@ from .constraints.ForeignKey import ForeignKey
 from typing import List, Union
 from ..helper.Timer import timer
 from .Trigger import Trigger
+from .helpers.StringReader import StringReader
 
 class Table:
     def __init__(self) -> None:
@@ -22,7 +23,7 @@ class Table:
         # TODO: add a method, increment if sequence
         if token_stream.is_sequence(["CREATE", "TABLE"]):
             token_stream.increment(2)
-            (name, token_stream) = self._read_name(token_stream)
+            (name, token_stream) = StringReader().read_string(token_stream)
             self.name = name
             # TODO: add a method, while inside loop
             if token_stream.read() == "(":
@@ -59,17 +60,21 @@ class Table:
         ]
         return "\n".join(statements)
 
-    def _read_name(self, token_stream: TokenStreamer):
-        name = token_stream.read()
-        if name == '"':
-            name = token_stream.read()
-            assert token_stream.read() == '"'
-        return (name, token_stream)
-
     def references_(self):
         for i in self.constraints:
             if isinstance(i, ForeignKey):
                 yield i.target_table
+
+    def get_state_type(self, state):
+        if state is None:
+            return self
+        table_copy = Table()
+        table_copy.name = self.name
+        table_copy.triggers = []
+        for i in self.triggers:
+            if state in i.trigger_types:
+                table_copy.triggers.append(i)
+        return table_copy
 
     def __str__(self) -> str:
         format = f"Table {self.name}\n" + "\n".join([

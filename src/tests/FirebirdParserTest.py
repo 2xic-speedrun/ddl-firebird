@@ -1,12 +1,6 @@
 import unittest
-from .FirebirdParser import FirebirdParser
-import os
-
-def get_full_path(path):
-    return os.path.join(
-        os.path.dirname(__file__),
-        path,
-    )
+from ..FirebirdParser import FirebirdParser
+from .TestUtils import get_full_path
 
 class TestFirebirdParser(unittest.TestCase):
     def test_simple_table(self):
@@ -189,6 +183,7 @@ class TestFirebirdParser(unittest.TestCase):
         assert results.triggers[0].name == "LOGG_OF_CONNECTION_ID"
         assert len(results.triggers[0].references_procedures) == 0
         assert len(results.triggers[0].references_tables) == 0
+        assert results.triggers[0].trigger_types == ['INSERT', 'UPDATE']
 
 if __name__ == '__main__':
     unittest.main()
