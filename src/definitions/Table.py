@@ -15,6 +15,8 @@ class Table:
         self.indexes: List[Index] = []
         self.triggers: List[Trigger] = []
 
+        self.references_tables = None
+
     @timer
     def parse(self, token_stream: TokenStreamer):
         # TODO: add a method, increment if sequence

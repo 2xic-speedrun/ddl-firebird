@@ -12,10 +12,12 @@ class DependencyTest(unittest.TestCase):
 
         results = FirebirdParser(content).parse()
         dependency = Dependency(results)
-        assert dependency.get_procedure_dependency(
+
+        names = list(map(lambda x: x.name, dependency.get_procedure_dependency(
             "ismultiple"
-        ) == [
-            "LOG", 
+        )))
+        assert names == [
+            "LOG",
             "ISMULTIPLE"
         ]
 
@@ -26,11 +28,12 @@ class DependencyTest(unittest.TestCase):
 
         results = FirebirdParser(content).parse()
         dependency = Dependency(results)
- 
-        assert dependency.get_procedure_dependency(
-            "ismultiple"
-        ) == ['USERS', 'GET_COUNT', 'LOGG_OF_CONNECTION_ID', 'LOGS', 'LOG', 'ISMULTIPLE']
 
-    
+        names = list(map(lambda x: x.name, dependency.get_procedure_dependency(
+            "ismultiple"
+        )))
+        assert names == ['USERS', 'GET_COUNT', 'LOGG_OF_CONNECTION_ID', 'LOGS', 'LOG', 'ISMULTIPLE']
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -52,8 +52,11 @@ class Types:
             token_stream.increment(1)
 
             return (token_stream, value)
-        elif token_stream.peek().isnumeric():
-            value = token_stream.read()
+        elif token_stream.peek().isnumeric() or token_stream.peek() == "-":
+            value = ""
+            if token_stream.peek() == "-":
+                value += token_stream.read()
+            value += token_stream.read()
             if token_stream.peek() == ".":
                 value += token_stream.read()
                 value += token_stream.read()
@@ -78,6 +81,9 @@ class Types:
 
         if self.default is not None:
             results = f"{results} DEFAULT {self.default}"
+
+        if not self.is_nullable:
+            results = f"{results} NOT NULL"
 
         return results
 

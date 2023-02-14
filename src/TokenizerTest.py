@@ -40,5 +40,12 @@ class TestTokenizer(unittest.TestCase):
         """)
         assert list(map(str, tokens)) == ["'", 'quote', "'"]
 
+    def test_select_from_substring(self):
+        tokens = Tokenizer().parse("""
+            S = substring(new.ref from I for 1);
+        """)
+        print(list(map(str, tokens)))
+        assert list(map(str, tokens)) == ['S', '=', 'substring', '(', 'new', '.', 'ref', 'from', 'I', 'for', '1', ')', ';']
+
 if __name__ == '__main__':
     unittest.main()

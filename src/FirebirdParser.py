@@ -42,16 +42,16 @@ class FirebirdParser:
                 if results is not None:
                     if isinstance(results, Table):
                         self.tables.append(results)
-                        self.table_graph[results.name] = results
+                        self.table_graph[results.name.upper()] = results
                     elif isinstance(results, Index):
                         self.indexes.append(results)
                     elif isinstance(results, Procedure):
                         self.procedures.append(results)
-                        self.procedure_graph[results.name] = results
+                        self.procedure_graph[results.name.upper()] = results
                     elif isinstance(results, Trigger):
                         self.triggers.append(results)
                     break
-                print(results)
+            #    print(results)
             else:
                 raise SyntaxError("Close to " + streamer.context)
         for i in self.triggers:
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     print(results.tables)
 
     dependency.plot(procedure)
-    
+

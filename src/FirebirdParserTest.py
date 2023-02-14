@@ -62,7 +62,7 @@ class TestFirebirdParser(unittest.TestCase):
         tables = results.tables
         assert len(tables) == 1
         table = tables[0]
-        assert len(table.columns) == 11
+        assert len(table.columns) == 12
         assert table.columns[0].name == "ID"
         assert table.columns[0].type.name == "BIGINT"
         assert table.columns[0].type.is_nullable == False
@@ -110,6 +110,11 @@ class TestFirebirdParser(unittest.TestCase):
         assert table.columns[10].type.default == '24.00'
         assert table.columns[10].type.is_nullable == True
 
+        assert table.columns[11].name == "NEGATIVE_NUM"
+        assert table.columns[11].type.name == "SMALLINT"
+        assert table.columns[11].type.default == '-20'
+        assert table.columns[11].type.is_nullable == True
+
         assert len(tables[0].constraints) == 1
 
     def test_table_and_index(self):
@@ -151,6 +156,39 @@ class TestFirebirdParser(unittest.TestCase):
         results.procedures[0].references_procedures = list(results.procedures[0].references_procedures)
         assert len(results.procedures[0].references_procedures) == 1
         assert results.procedures[0].references_procedures[0] == "LOG"
+
+    def test_procedures_substring(self):
+        content = None
+        with open(get_full_path("examples/ProcedureSubString.sql"), "r") as file:
+            content = file.read()
+
+        results = FirebirdParser(content).parse()
+        assert len(results.procedures) == 1
+        assert results.procedures[0].name == "ISMULTIPLE"
+        assert len(results.procedures[0].references_procedures) == 0
+        assert len(results.procedures[0].references_tables) == 0
+
+    def test_procedures_substring_2(self):
+        content = None
+        with open(get_full_path("examples/ProcedureSubString2.sql"), "r") as file:
+            content = file.read()
+
+        results = FirebirdParser(content).parse()
+        assert len(results.procedures) == 1
+        assert results.procedures[0].name == "ISMULTIPLE"
+        assert len(results.procedures[0].references_procedures) == 0
+        assert len(results.procedures[0].references_tables) == 0
+
+    def test_trigger_substring(self):
+        content = None
+        with open(get_full_path("examples/TriggerWithSubstring.sql"), "r") as file:
+            content = file.read()
+
+        results = FirebirdParser(content).parse()
+        assert len(results.triggers) == 1
+        assert results.triggers[0].name == "LOGG_OF_CONNECTION_ID"
+        assert len(results.triggers[0].references_procedures) == 0
+        assert len(results.triggers[0].references_tables) == 0
 
 if __name__ == '__main__':
     unittest.main()

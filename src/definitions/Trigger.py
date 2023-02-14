@@ -26,13 +26,17 @@ class Trigger:
                     break
                 token_stream = token_stream.increment(1)
 
-            print(self.name, early_stopping, token_stream.tokens[token_stream.index:token_stream.index+3])
+        #    print(self.name, early_stopping, token_stream.tokens[token_stream.index:token_stream.index+3])
             if not early_stopping:
                 token_stream.increment(1)
                 while reference_count != 0:
                     raw_token = token_stream.tokens[token_stream.index]
                     token = str(raw_token).upper()
 
+                    if token_stream.is_sequence(["SUBSTRING", "("]):
+                        while token_stream.read() != ")":
+                            pass
+                        continue
                     if token_stream.is_sequence(["EXECUTE", "PROCEDURE"]):
                         self.references_procedures.add(
                             token_stream.peek(2).upper()

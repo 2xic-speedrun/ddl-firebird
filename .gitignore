@@ -3,3 +3,8 @@ example.ddl
 output.sql
 debug.py
 output*.sql
+order_sequence.py
+fresh_example.ddl
+dependency
+dependency.svg
+skipped_sql.sql

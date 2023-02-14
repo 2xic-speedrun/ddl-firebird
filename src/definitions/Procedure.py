@@ -25,7 +25,10 @@ class Procedure:
             while reference_count != 0:
                 raw_token = token_stream.tokens[token_stream.index]
                 token = str(raw_token).upper()
-
+                if token_stream.is_sequence(["SUBSTRING", "("]):
+                    while token_stream.read() != ")":
+                        pass
+                    continue
                 if token_stream.is_sequence(["EXECUTE", "PROCEDURE"]):
                     self.references_procedures.add(
                         token_stream.peek(2).upper()
@@ -43,6 +46,7 @@ class Procedure:
                         token_stream.peek(1)
                     )
                 elif token_stream.is_sequence(["FROM"]):
+                  #  print(token_stream.context)
                     if token_stream.peek().isalpha():
                         if token_stream.peek(2) == "(":
                             self.references_procedures.add(
