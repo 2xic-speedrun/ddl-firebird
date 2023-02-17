@@ -12,6 +12,20 @@ class Dependency:
         self.edges = {}
        # self.dot.graph_attr['layout'] = 'neato'
 
+    """
+    Solve the entire Dependency Graph.
+    """
+    def solve(self):
+        dependency = []
+        visited = {}
+        max_depth = float('inf')
+        prune = False
+        for i in self.parsed.procedure_graph.values():
+            self._resolve_dependency(i, dependency, visited, self.dot, max_depth=max_depth, prune=prune)
+        for i in self.parsed.table_graph.values():
+            self._resolve_dependency(i, dependency, visited, self.dot, max_depth=max_depth, prune=prune)
+        return dependency
+
     def plot(self, procedure: str=None, table=None, max_depth=float('inf'), prune=False):
         dependency = []
         visited = {}

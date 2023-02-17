@@ -8,3 +8,9 @@ fresh_example.ddl
 dependency
 dependency.svg
 skipped_sql.sql
+transformer.py
+full_firebird.sql
+procedures.txt
+triggers.txt
+debug_triggers.txt
+debug_procedure.txt

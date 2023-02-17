@@ -19,6 +19,8 @@ class Trigger:
             (self.target_table, token_stream) = StringReader().read_string(token_stream)
 
             self.trigger_types = self.read_trigger_type(token_stream)
+            if token_stream.peek() == "POSITION":
+                token_stream.increment(2)
 
             reference_count = 1
             early_stopping = False
@@ -31,7 +33,6 @@ class Trigger:
                     break
                 token_stream = token_stream.increment(1)
 
-        #    print(self.name, early_stopping, token_stream.tokens[token_stream.index:token_stream.index+3])
             if not early_stopping:
                 (token_stream, self.references_procedures, self.references_tables) = Scope().parse_scope(token_stream)
 
@@ -39,7 +40,9 @@ class Trigger:
         return (None, token_stream)
 
     def read_trigger_type(self, token_stream):
-        assert token_stream.read() in ["BEFORE", "AFTER"]
+        if token_stream.peek() == "ACTIVE":
+            token_stream.increment(1)
+        assert token_stream.read() in ["BEFORE", "AFTER"], token_stream.context
         actions = []
         while True:
             actions.append(token_stream.read())

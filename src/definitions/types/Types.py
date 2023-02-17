@@ -31,8 +31,14 @@ class Types:
                 self.parameters += " "
                 if token_stream.peek() == "-":
                     self.parameters += token_stream.read()
+                elif token_stream.peek() == "TEXT":
+                    token_stream.increment(1)
+                    if token_stream.peek() == "SEGMENT":
+                        token_stream.increment(2)
                 self.parameters += token_stream.read()
-                assert token_stream.peek() in [",", ")"], token_stream.peek()
+                #assert token_stream.peek() in [",", ")"], token_stream.peek()
+                while not token_stream.peek() in [",", ")"]:
+                    token_stream.increment(1)
 
         if token_stream.is_sequence(["DEFAULT"]):
             token_stream.increment(1)

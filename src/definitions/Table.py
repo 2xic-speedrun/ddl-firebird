@@ -45,7 +45,7 @@ class Table:
                     if token_stream.peek() == ",":
                         token_stream.increment(1)
                 token_stream.increment(1)
-                assert token_stream.read() == ";"
+                assert token_stream.read() == ";", token_stream.context
             return (self, token_stream)
         return (None, token_stream)
 

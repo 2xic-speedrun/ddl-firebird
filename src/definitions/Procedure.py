@@ -11,6 +11,7 @@ class Procedure:
 
     def parse(self, token_stream: TokenStreamer):
         if token_stream.is_sequence(["CREATE", "PROCEDURE"]) or \
+            token_stream.is_sequence(["ALTER", "PROCEDURE"]) or \
             token_stream.is_sequence(["CREATE", "OR", "ALTER", "PROCEDURE"]):
             start_index = token_stream.index
             if token_stream.is_sequence(["CREATE", "OR", "ALTER", "PROCEDURE"]):
