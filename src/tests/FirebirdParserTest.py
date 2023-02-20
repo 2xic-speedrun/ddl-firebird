@@ -56,6 +56,7 @@ class TestFirebirdParser(unittest.TestCase):
         tables = results.tables
         assert len(tables) == 1
         table = tables[0]
+
         assert len(table.columns) == 12
         assert table.columns[0].name == "ID"
         assert table.columns[0].type.name == "BIGINT"
